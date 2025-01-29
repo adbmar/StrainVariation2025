@@ -28,9 +28,9 @@ dir_main <- if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::is
 options(contrasts=c("contr.sum", "contr.poly"))
 
 #Running prerequisite scripts if they have not already been run
-if(!exists("my_data")){source("LoadData.R")}
-if(!exists("FE_analysis")){source("AnalysisFunctions.R")}
-if(!exists("Gall_FE")){source("Analyses.R")}
+if(!exists("my_data")){source(file.path(dir_main, "LoadData.R"))}
+if(!exists("FE_analysis")){source(file.path(dir_main, "AnalysisFunctions.R"))}
+if(!exists("Gall_FE")){source(file.path(dir_main, "Analyses.R"))}
 
 ###################################
 ### Loading requisite libraries ###
@@ -173,7 +173,7 @@ p_galls_genorhizo <- ggarrange(p_galls_by_geno, p_galls_by_rhizo, ncol = 2, alig
 
 p_galls_by_genorhizo <- ggplot(emm_vc_galls) +
   default_aes + aes(x = Genotype, fill = Rhizo) + 
-  geom_pointrange(shape = 21, position = position_dodge(width = 0.4)) +
+  geom_pointrange(shape = 21, position = position_dodge(width = 0.7)) +
   geom_vline(xintercept = seq(1.5,16.5,1), color = "darkgray") +
   geom_hline(yintercept = c(-0.1,0)) +
   theme_minimal() + theme(panel.grid.major.x = element_blank()) +
@@ -188,12 +188,18 @@ p_galls_subclusters <- ggplot(emm_vc_galls_subclusters) +
   aes(x = Genotype, fill = Rhizo) + default_aes +
   geom_line(aes(group = Rhizo, color = Rhizo), position = position_dodge(width = 0.25)) + 
   geom_pointrange(shape = 21, position = position_dodge(width = 0.4)) +
-  facet_wrap(~ subcluster, scales = "free_x", nrow = 1) +
   theme_classic() +
+  geom_text(data = as.data.frame(rbind(c("HM049", 60, "", "Subcluster 1"), c("HM012", 60, "", "Subcluster 2"), c("HM011", 60, "", "Subcluster 3"),
+                                       c("HM012", 60, "*", "Subcluster 4"), c("HM071", 60, "*", "Subcluster 5"))) %>%
+              mutate(V2 = as.numeric(V2), subcluster = V4),
+            aes(x = V1, y = V2, label = V3), inherit.aes = FALSE,
+            position = position_nudge(x = 0.5), size = 5) +
+  facet_wrap(~ subcluster, scales = "free_x", nrow = 1) +
   ylab("Gall counts\n(volume corrected)") +
   ylim(c(0,70)) +
   theme(plot.title.position = "plot") +
   ggtitle("C") + theme(plot.title = element_text(size = 18, hjust = 0))
+p_galls_subclusters
 
 p_galls_variance <- ggplot(
   Gall_vc_RE %>%
@@ -206,15 +212,16 @@ p_galls_variance <- ggplot(
               mutate(pct = Variance / sum(Variance, na.rm = TRUE)),
             aes(label = paste(percent(pct), sig)),
             position = position_fill(vjust =0.5)) +
-  theme_minimal() +
+  theme_minimal() + theme(legend.position = "bottom") +
   ggtitle("D") + theme(plot.title = element_text(size = 18, hjust = 0)) +
   theme(plot.title.position = "plot") +
   scale_y_continuous(labels = scales::percent) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
-        panel.grid.major.x = element_blank())
+        panel.grid.major.x = element_blank()) +
+  guides(fill=guide_legend(ncol = 1))
 
 p_galls <- grid.arrange(p_galls_genorhizo, p_galls_by_genorhizo, p_galls_subclusters, p_galls_variance,
                      layout_matrix = rbind(c(1,4),c(2,4),c(3,4)),
-                     widths = c(3,1))
+                     widths = c(4,1))

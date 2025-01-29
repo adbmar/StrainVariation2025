@@ -28,9 +28,9 @@ dir_main <- if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::is
 options(contrasts=c("contr.sum", "contr.poly"))
 
 #Running prerequisite scripts if they have not already been run
-if(!exists("my_data")){source("LoadData.R")}
-if(!exists("FE_analysis")){source("AnalysisFunctions.R")}
-if(!exists("Gall_FE")){source("Analyses.R")}
+if(!exists("my_data")){source(file.path(dir_main, "LoadData.R"))}
+if(!exists("FE_analysis")){source(file.path(dir_main, "AnalysisFunctions.R"))}
+if(!exists("Gall_FE")){source(file.path(dir_main, "Analyses.R"))}
 
 ###################################
 ### Loading requisite libraries ###
@@ -140,6 +140,14 @@ emt_AGB_sev <- emmip(FE_analysis(my_data %>% filter(Nema == "+"), plot = FALSE,
   ~Galls:Rhizo, var = "Galls", specs = c("Rhizo", "Galls"), type = "response", at = list(Galls = c(seq(1,61,2.5))), CIs = TRUE, plotit = FALSE, rg.limit = 1000000) %>% as.data.frame()
   
 p_AGB_sev <- ggplot(emt_AGB_sev) + 
+  geom_line(aes(x=Galls, y=yvar, color=Rhizo)) +
+  ylab("Above ground biomass (g)") +
+  geom_ribbon(aes(x = Galls, ymax=UCL, ymin=LCL, fill=Rhizo), alpha = 0.2) +
+  theme_minimal() +
+  ggtitle("D") +
+  theme(plot.title = element_text(size = 18, hjust = 0), plot.title.position = "plot")
+
+ggplot(emt_AGB_sev %>% filter(Rhizo %in% c("WSM1022", "USDA1021", "G"))) + 
   geom_line(aes(x=Galls, y=yvar, color=Rhizo)) +
   ylab("Above ground biomass (g)") +
   geom_ribbon(aes(x = Galls, ymax=UCL, ymin=LCL, fill=Rhizo), alpha = 0.2) +

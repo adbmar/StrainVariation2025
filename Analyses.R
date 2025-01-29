@@ -29,8 +29,8 @@ dir_main <- if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::is
 options(contrasts=c("contr.sum", "contr.poly"))
 
 #Running prerequisite scripts if they have not already been run
-if(!exists("my_data")){source("LoadData.R")}
-if(!exists("FE_analysis")){source("AnalysisFunctions.R")}
+if(!exists("my_data")){source(file.path(dir_main,"LoadData.R"))}
+if(!exists("FE_analysis")){source(file.path(dir_main,"AnalysisFunctions.R"))}
 
 ###################################
 ### Loading requisite libraries ###

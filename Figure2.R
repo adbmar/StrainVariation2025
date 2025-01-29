@@ -28,9 +28,9 @@ dir_main <- if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::is
 options(contrasts=c("contr.sum", "contr.poly"))
 
 #Running prerequisite scripts if they have not already been run
-if(!exists("my_data")){source("LoadData.R")}
-if(!exists("FE_analysis")){source("AnalysisFunctions.R")}
-if(!exists("Gall_FE")){source("Analysis.R")}
+if(!exists("my_data")){source(file.path(dir_main, "LoadData.R"))}
+if(!exists("FE_analysis")){source(file.path(dir_main, "AnalysisFunctions.R"))}
+if(!exists("Gall_FE")){source(file.path(dir_main, "Analyses.R"))}
 
 ###################################
 ### Loading requisite libraries ###
@@ -108,7 +108,7 @@ p_nodules_geno <- ggplot(emm_vc_nodules_by_geno) +
   scale_x_discrete(labels = c("-" = "Uninfected", "+" = "Infected")) +
   xlab("Nematode infection status") +
   ylab("Gall counts\n(volume corrected)") +
-  ylim(c(0,110)) + theme_minimal() +
+  ylim(c(0,100)) + theme_minimal() +
   ggtitle("A") + theme(plot.title = element_text(size = 18, hjust = 0), plot.title.position = "plot")
 
 p_nodules_rhizo <- ggplot(emm_vc_nodules_by_rhizo) + 
@@ -118,7 +118,7 @@ p_nodules_rhizo <- ggplot(emm_vc_nodules_by_rhizo) +
   scale_x_discrete(labels = c("-" = "Uninfected", "+" = "Infected")) +
   xlab("Nematode infection status") +
   ylab("Gall counts\n(volume corrected)") +
-  ylim(c(0,110)) + theme_minimal() +
+  ylim(c(0,100)) + theme_minimal() +
   ggtitle("B") + theme(plot.title = element_text(size = 18, hjust = 0), plot.title.position = "plot")
 
 
@@ -137,8 +137,10 @@ p_nods_variance <- ggplot(Nods_vc_RE %>% filter(`Chi Df` == 1)%>%
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
-        panel.grid.major.x = element_blank())
+        panel.grid.major.x = element_blank()) +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(ncol = 1, title.position="top"))
 
 p_nods <- grid.arrange(p_nodules_geno, p_nodules_rhizo, p_nods_variance, 
-                       ncol = 3, widths = c(3,3,2))
+                       ncol = 3, widths = c(7,7,3))
 
