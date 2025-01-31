@@ -107,7 +107,7 @@ p_nodules_geno <- ggplot(emm_vc_nodules_by_geno) +
   geom_line(aes(group = Genotype), position = position_dodge(width = 0.33)) + 
   scale_x_discrete(labels = c("-" = "Uninfected", "+" = "Infected")) +
   xlab("Nematode infection status") +
-  ylab("Gall counts\n(volume corrected)") +
+  ylab("Nodule counts\n(volume corrected)") +
   ylim(c(0,100)) + theme_minimal() +
   ggtitle("A") + theme(plot.title = element_text(size = 18, hjust = 0), plot.title.position = "plot")
 
@@ -117,7 +117,7 @@ p_nodules_rhizo <- ggplot(emm_vc_nodules_by_rhizo) +
   geom_line(aes(group = Rhizo), position = position_dodge(width = 0.33)) +
   scale_x_discrete(labels = c("-" = "Uninfected", "+" = "Infected")) +
   xlab("Nematode infection status") +
-  ylab("Gall counts\n(volume corrected)") +
+  ylab("Nodule counts\n(volume corrected)") +
   ylim(c(0,100)) + theme_minimal() +
   ggtitle("B") + theme(plot.title = element_text(size = 18, hjust = 0), plot.title.position = "plot")
 
@@ -131,7 +131,7 @@ p_nods_variance <- ggplot(Nods_vc_RE %>% filter(`Chi Df` == 1)%>%
               mutate(pct = Variance / sum(Variance, na.rm = TRUE)),
             aes(label = paste(percent(pct), sig)),
             position = position_fill(vjust =0.5)) +
-  theme_minimal() +
+  theme_minimal() + ylab("Variance components for volume corrected nodule counts") +
   ggtitle("C") + theme(plot.title = element_text(size = 18, hjust = 0), plot.title.position = "plot") +
   scale_y_continuous(labels = scales::percent) +
   theme(axis.title.x = element_blank(),

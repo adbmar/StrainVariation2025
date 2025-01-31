@@ -89,7 +89,7 @@ p_AGB_geno <- ggplot(emm_AGB_by_geno) +
   geom_line(aes(group = Genotype), position = position_dodge(width = 0.33)) +
   scale_x_discrete(labels = c("-" = "Uninfected", "+" = "Infected")) +
   xlab("Nematode infection status") +
-  ylab("Above.ground.biomass") +
+  ylab("Above ground biomass (g)") +
   theme_minimal() + ylim(c(0,0.25)) +
   guides(fill = guide_legend(ncol = 2)) +
   ggtitle("A") + theme(plot.title = element_text(size = 18, hjust = 0), plot.title.position = "plot")
@@ -110,7 +110,7 @@ p_AGB_rhizo <- ggplot(emm_AGB_by_rhizo) +
   geom_line(aes(group = Rhizo), position = position_dodge(width = 0.33)) +
   scale_x_discrete(labels = c("-" = "Uninfected", "+" = "Infected")) +
   xlab("Nematode infection status") +
-  ylab("Above ground biomass") +
+  ylab("Above ground biomass (g)") +
   theme_minimal() + ylim(c(0,0.25)) +
   guides(fill = guide_legend(ncol = 2)) +
   ggtitle("B") + ylim(c(0,0.25)) +
@@ -124,9 +124,9 @@ p_AGB_variance <- ggplot(AGB_RE %>% filter(`Chi Df` == 1)%>%
   geom_text(data = . %>%
               filter(!is.na(Variance), Effect != "Rhizo") %>% 
               mutate(pct = Variance / sum(Variance, na.rm = TRUE)),
-            aes(label = paste(percent(pct), ifelse(sig != ".", sig, ""))),
+            aes(label = paste(percent(pct, accuracy = 1), ifelse(sig != ".", sig, ""))),
             position = position_fill(vjust =0.5)) +
-  theme_minimal() +
+  theme_minimal() + ylab("Variance components for above ground biomass") +
   ggtitle("C") + theme(plot.title = element_text(size = 18, hjust = 0), plot.title.position = "plot") +
   scale_y_continuous(labels = scales::percent) +
   theme(axis.title.x = element_blank(),

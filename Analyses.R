@@ -164,31 +164,26 @@ Nods_vc_RE <- RE_analysis(df = my_data, family_distribution = nbinom1,
                             formula_table = generate_formula_table("Total.Nodules", volume = "scale"))
 
 
-Nods_sub1_FE <- FE_analysis(df = subcluster_1, family_distribution = nbinom1, singular.ok = TRUE,
+Nods_sub1_FE <- FE_analysis(df = subcluster_1, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
                             formula = "Total.Nodules ~ Genotype * Rhizo * Nema")
-Nods_sub2_FE <- FE_analysis(df = subcluster_2, family_distribution = nbinom1, singular.ok = TRUE,
+Nods_sub2_FE <- FE_analysis(df = subcluster_2, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
                             formula = "Total.Nodules ~ Genotype * Rhizo * Nema")
-### ! ! ! ! ^ The above model has some odd residual quantiles
-Nods_sub3_FE <- FE_analysis(df = subcluster_3, family_distribution = nbinom1, singular.ok = TRUE,
+Nods_sub3_FE <- FE_analysis(df = subcluster_3, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
                             formula = "Total.Nodules ~ Genotype * Rhizo * Nema")
-Nods_sub4_FE <- FE_analysis(df = subcluster_4, family_distribution = nbinom1, singular.ok = TRUE,
+Nods_sub4_FE <- FE_analysis(df = subcluster_4, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
                             formula = "Total.Nodules ~ Genotype * Rhizo * Nema")
-Nods_sub5_FE <- FE_analysis(df = subcluster_5, family_distribution = nbinom1, singular.ok = TRUE,
+Nods_sub5_FE <- FE_analysis(df = subcluster_5, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
                             formula = "Total.Nodules ~ Genotype * Rhizo * Nema")
-Nods_sub1_vc_FE <- FE_analysis(df = subcluster_1, family_distribution = nbinom1, singular.ok = TRUE,
-                            formula = "Total.Nodules ~ Genotype * Rhizo + scale(Volume.mm3)")
-Nods_sub2_vc_FE <- FE_analysis(df = subcluster_2, family_distribution = nbinom1, singular.ok = TRUE,
-                               formula = "Total.Nodules ~ Genotype * Rhizo + scale(Volume.mm3)")
-### ! ! ! ! ^ The above model has residual quantile deviations
-Nods_sub3_vc_FE <- FE_analysis(df = subcluster_3, family_distribution = nbinom1, singular.ok = TRUE,
-                               formula = "Total.Nodules ~ Genotype * Rhizo + scale(Volume.mm3)")
-### ! ! ! ! ^ The above model has residual quantile deviations
-Nods_sub4_vc_FE <- FE_analysis(df = subcluster_4, family_distribution = nbinom1, singular.ok = TRUE,
-                               formula = "Total.Nodules ~ Genotype * Rhizo + scale(Volume.mm3)")
-### ! ! ! ! ^ The above model has residual quantile deviations
-Nods_sub5_vc_FE <- FE_analysis(df = subcluster_5, family_distribution = nbinom1, singular.ok = TRUE,
-                               formula = "Total.Nodules ~ Genotype * Rhizo + scale(Volume.mm3)")
-### ! ! ! ! ^ The above model has residual quantile deviations
+Nods_sub1_vc_FE <- FE_analysis(df = subcluster_1, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                            formula = "Total.Nodules ~ Genotype * Rhizo * Nema + scale(Volume.mm3)")
+Nods_sub2_vc_FE <- FE_analysis(df = subcluster_2, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                               formula = "Total.Nodules ~ Genotype * Rhizo * Nema + scale(Volume.mm3)")
+Nods_sub3_vc_FE <- FE_analysis(df = subcluster_3, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                               formula = "Total.Nodules ~ Genotype * Rhizo * Nema + scale(Volume.mm3)")
+Nods_sub4_vc_FE <- FE_analysis(df = subcluster_4, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                               formula = "Total.Nodules ~ Genotype * Rhizo * Nema + scale(Volume.mm3)")
+Nods_sub5_vc_FE <- FE_analysis(df = subcluster_5, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                               formula = "Total.Nodules ~ Genotype * Rhizo * Nema + scale(Volume.mm3)")
 
 
 #########
@@ -211,31 +206,26 @@ Nods_sev_vc_RE <- RE_analysis(df = my_data %>% filter(Nema == "+"), family_distr
                                 formula_table = generate_formula_table("Total.Nodules", volume = "scale", galls = "scale", mod_trait = "scale"))
 
 
-Nods_sub1_FE <- FE_analysis(df = subcluster_1, family_distribution = nbinom1, singular.ok = TRUE,
-                            formula = "Total.Nodules ~ Genotype * Rhizo * Nema")
-Nods_sub2_FE <- FE_analysis(df = subcluster_2, family_distribution = nbinom1, singular.ok = TRUE,
-                            formula = "Total.Nodules ~ Genotype * Rhizo * Nema", block = "+ Block.RowSplit"
-                            )
-Nods_sub3_FE <- FE_analysis(df = subcluster_3, family_distribution = nbinom1, singular.ok = TRUE,
-                            formula = "Total.Nodules ~ Genotype * Rhizo * Nema", block = "+ Block.RowSplit")
-Nods_sub4_FE <- FE_analysis(df = subcluster_4, family_distribution = nbinom1, singular.ok = TRUE,
-                            formula = "Total.Nodules ~ Genotype * Rhizo * Nema", block = "+ Block.RowSplit")
-Nods_sub5_FE <- FE_analysis(df = subcluster_5, family_distribution = nbinom1, singular.ok = TRUE,
-                            formula = "Total.Nodules ~ Genotype * Rhizo * Nema", , block = "+ Block.RowSplit")
-Nods_sub1_vc_FE <- FE_analysis(df = subcluster_1, family_distribution = nbinom1, singular.ok = TRUE,
-                               formula = "Total.Nodules ~ Genotype * Rhizo + scale(Volume.mm3)")
-Nods_sub2_vc_FE <- FE_analysis(df = subcluster_2, family_distribution = nbinom1, singular.ok = TRUE,
-                               formula = "Total.Nodules ~ Genotype * Rhizo + scale(Volume.mm3)")
-### ! ! ! ! ^ The above model has residual quantile deviations
-Nods_sub3_vc_FE <- FE_analysis(df = subcluster_3, family_distribution = nbinom1, singular.ok = TRUE,
-                               formula = "Total.Nodules ~ Genotype * Rhizo + scale(Volume.mm3)")
-### ! ! ! ! ^ The above model has residual quantile deviations
-Nods_sub4_vc_FE <- FE_analysis(df = subcluster_4, family_distribution = nbinom1, singular.ok = TRUE,
-                               formula = "Total.Nodules ~ Genotype * Rhizo + scale(Volume.mm3)")
-### ! ! ! ! ^ The above model has residual quantile deviations
-Nods_sub5_vc_FE <- FE_analysis(df = subcluster_5, family_distribution = nbinom1, singular.ok = TRUE,
-                               formula = "Total.Nodules ~ Genotype * Rhizo + scale(Volume.mm3)")
-### ! ! ! ! ^ The above model has odd residual quantiles
+Nods_sev_sub1_FE <- FE_analysis(df = subcluster_1, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                            formula = "Total.Nodules ~ Genotype * Rhizo * Galls")
+Nods_sev_sub2_FE <- FE_analysis(df = subcluster_2, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                            formula = "Total.Nodules ~ Genotype * Rhizo * Galls")
+Nods_sev_sub3_FE <- FE_analysis(df = subcluster_3, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                            formula = "Total.Nodules ~ Genotype * Rhizo * Galls")
+Nods_sev_sub4_FE <- FE_analysis(df = subcluster_4, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                            formula = "Total.Nodules ~ Genotype * Rhizo * Galls")
+Nods_sev_sub5_FE <- FE_analysis(df = subcluster_5, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                            formula = "Total.Nodules ~ Genotype * Rhizo * Galls")
+Nods_sev_sub1_vc_FE <- FE_analysis(df = subcluster_1, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                               formula = "Total.Nodules ~ Genotype * Rhizo * Galls + scale(Volume.mm3)")
+Nods_sev_sub2_vc_FE <- FE_analysis(df = subcluster_2, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                                   formula = "Total.Nodules ~ Genotype * Rhizo * Galls + scale(Volume.mm3)")
+Nods_sev_sub3_vc_FE <- FE_analysis(df = subcluster_3, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                                   formula = "Total.Nodules ~ Genotype * Rhizo * Galls + scale(Volume.mm3)")
+Nods_sev_sub4_vc_FE <- FE_analysis(df = subcluster_4, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                                   formula = "Total.Nodules ~ Genotype * Rhizo * Galls + scale(Volume.mm3)")
+Nods_sev_sub5_vc_FE <- FE_analysis(df = subcluster_5, family_distribution = nbinom1, singular.ok = TRUE, block = FALSE,
+                                   formula = "Total.Nodules ~ Genotype * Rhizo * Galls + scale(Volume.mm3)")
 
 
 #########

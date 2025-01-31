@@ -212,15 +212,16 @@ p_galls_variance <- ggplot(
               mutate(pct = Variance / sum(Variance, na.rm = TRUE)),
             aes(label = paste(percent(pct), sig)),
             position = position_fill(vjust =0.5)) +
-  theme_minimal() + theme(legend.position = "bottom") +
-  ggtitle("D") + theme(plot.title = element_text(size = 18, hjust = 0)) +
+  theme_minimal() + ylab("Variance components for volume corrected gall counts") +
+  theme(legend.position = "bottom") +
+  ggtitle("D") + theme(plot.title = element_text(size = 18, hjust = 0), plot.title.position = "plot") +
   theme(plot.title.position = "plot") +
   scale_y_continuous(labels = scales::percent) +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         panel.grid.major.x = element_blank()) +
-  guides(fill=guide_legend(ncol = 1))
+  guides(fill = guide_legend(ncol = 1, title.position="top"))
 
 p_galls <- grid.arrange(p_galls_genorhizo, p_galls_by_genorhizo, p_galls_subclusters, p_galls_variance,
                      layout_matrix = rbind(c(1,4),c(2,4),c(3,4)),
