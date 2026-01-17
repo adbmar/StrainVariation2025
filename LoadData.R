@@ -54,6 +54,11 @@ dir_main <- if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::is
 } else {
   dirname(normalizePath(sys.frame(1)$ofile))
 }
+dir_out <- file.path(dir_main, "out")
+if (!dir.exists("path/to/directory")) {
+  dir.create(dir_out, recursive = TRUE)
+}
+
 
 #manual back up for setting main directory)
 ################################################################################
@@ -67,7 +72,7 @@ dir_main <- if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::is
 ######################
 ### Importing data ###
 ######################
-data <- read.csv(file.path(dir_main, "cleaned_data_mod.csv"))
+data <- read.csv(file.path(dir_main, "data.csv"))
 data <- data %>% mutate(Block.Position1 = substring(Block.Position, 1, 1), #Changing Block.Position to avoid aliased coefficients
                         Block.Position2 = substring(Block.Position, 2, 2), #Changing Block.Position to avoid aliased coefficients
                         Block.Split = if_else(is.na(Block.Col) | is.na(Block.Row), NA,
@@ -101,43 +106,10 @@ data <- data %>%
   mutate(Block.Block = interaction(Block.Position1, Block.ColSplit)) %>%
   mutate(Block.Block2 = interaction(Block.Shelf, Block.Position1, Block.ColSplit))
 
-RV_data_root_nema_neg <- read.csv(file.path(dir_main, "RhizoVision_RootNemaNeg.csv"))
-RV_data_root_nema_pos <- read.csv(file.path(dir_main, "RhizoVision_RootNemaPos.csv"))
-
-RV_data_root_nema_neg <- RV_data_root_nema_neg %>% 
-  select(File.Name, Number.of.Root.Tips, Number.of.Branch.Points, Total.Root.Length.mm,
-         Branching.frequency.per.mm, Network.Area.mm2, Average.Diameter.mm,
-         Median.Diameter.mm, Maximum.Diameter.mm, Perimeter.mm, Volume.mm3,
-         Surface.Area.mm2) %>%
-  rename("ids" = File.Name)
-
-RV_data_root_nema_pos <- RV_data_root_nema_pos %>%
-  select(File.Name, Number.of.Root.Tips, Number.of.Branch.Points, Total.Root.Length.mm,
-         Branching.frequency.per.mm, Network.Area.mm2, Average.Diameter.mm,
-         Median.Diameter.mm, Maximum.Diameter.mm, Perimeter.mm, Volume.mm3,
-         Surface.Area.mm2) %>%
-  rename("ids" = File.Name)
-
-RV_data <- rbind(RV_data_root_nema_pos, RV_data_root_nema_neg, by = "ids") %>% filter(ids != "ids")
-RV_data$ids <- gsub(".png", "", RV_data$ids)
-
-data <- full_join(RV_data, data, by = "ids")
-
 
 
 data$Above.ground.biomass <- as.numeric(data$Above.ground.biomass)
-data$Number.of.Root.Tips <- as.numeric(data$Number.of.Root.Tips)
-data$Number.of.Branch.Points <- as.numeric(data$Number.of.Branch.Points)
-data$Total.Root.Length.mm <- as.numeric(data$Total.Root.Length.mm)
-data$Branching.frequency.per.mm <- as.numeric(data$Branching.frequency.per.mm)
-data$Network.Area.mm2 <- as.numeric(data$Network.Area.mm2)
-data$Network.Area.mm2 <- as.numeric(data$Network.Area.mm2)
-data$Average.Diameter.mm <- as.numeric(data$Average.Diameter.mm)
-data$Median.Diameter.mm <- as.numeric(data$Median.Diameter.mm)
-data$Maximum.Diameter.mm <- as.numeric(data$Maximum.Diameter.mm)
-data$Perimeter.mm <- as.numeric(data$Perimeter.mm)
-data$Volume.mm3 <- as.numeric(data$Volume.mm3)
-data$Surface.Area.mm2 <- as.numeric(data$Surface.Area.mm2)
+data$Below.ground.biomass <- as.numeric(data$Below.ground.biomass)
 data$Nema <- as.factor(data$Nema)
 data$Rhizo <- as.factor(data$Rhizo)
 data$Genotype <- as.factor(data$Genotype)
@@ -146,32 +118,21 @@ data$Block.Large <- as.factor(data$Block.Large)
 data$Block.Shelf <- as.factor(data$Block.Shelf)
 data$Block.Side <- as.factor(data$Block.Side)
 data$Block.Position <- as.factor(data$Block.Position)
+data$Block.Position1 <- as.factor(data$Block.Position1)
+data$Block.RowSplit <- as.factor(data$Block.RowSplit)
 data$Block.Col <- as.factor(data$Block.Col)
 data$Block.ColSplit <- as.factor(data$Block.ColSplit)
 data$Block.Block <- as.factor(data$Block.Block)
 
-data <- data %>% mutate(SvR_ratio = as.numeric(Above.ground.biomass/Volume.mm3))
-
-### Single data point filtering
-#sanity check of volume and surface area
-ggplot(data) + aes(x = Surface.Area.mm2, y = Volume.mm3, label = ids) + geom_point() + theme_classic()
-ggplot(data) + aes(x = Surface.Area.mm2, y = Volume.mm3, label = ids) + geom_point() + theme_classic() + geom_text()
-
 #Overall checking that data looks okay
 ggplot(
-  data %>% mutate(across(where(is.numeric), scale)) %>% pivot_longer(cols = data %>% select(where(is.numeric)) %>% colnames())
+  data %>% mutate(across(where(is.numeric), scale)) %>% pivot_longer(cols = data %>% dplyr::select(where(is.numeric)) %>% colnames())
 ) + aes(x = name, y = value, label = ids) + geom_point() + 
   geom_text(data = . %>% filter(value >= 3 | value <= -3), position = position_nudge(x = 0.6)) +
   theme_classic() + theme(axis.text.x = element_text(angle = 90))
 
-#filter out weird surface area volume points
-data <- data %>% filter(!ids %in% c("id490", "id487", "id065", "id041", "id065", "id041", "id060", "id562"))
-
-ggplot(data) + aes(x = Surface.Area.mm2, y = Volume.mm3, label = ids) + geom_point() + theme_classic()
-ggplot(data) + aes(x = Surface.Area.mm2, y = Volume.mm3, label = ids) + geom_point() + theme_classic() + geom_text()
-
 ggplot(
-  data %>% mutate(across(where(is.numeric), scale)) %>% pivot_longer(cols = data %>% select(where(is.numeric)) %>% colnames())
+  data %>% mutate(across(where(is.numeric), scale)) %>% pivot_longer(cols = data %>% dplyr::select(where(is.numeric)) %>% colnames())
 ) + aes(x = name, y = value, label = ids) + geom_point() + 
   geom_text(data = . %>% filter(value >= 3 | value <= -3), position = position_nudge(x = 0.6)) +
   theme_classic() + theme(axis.text.x = element_text(angle = 90))
@@ -205,8 +166,26 @@ my_data %>% group_by(Genotype, Rhizo) %>% summarize() %>% group_by(Genotype, .ad
 
 
 ### Setting subclusters for testing interaction terms
-full_design <- my_data %>% select(Genotype, Rhizo) %>% mutate(value = 1) %>% distinct() %>% complete(Genotype, Rhizo)
-full_design_2 <- my_data %>% group_by(Genotype, Rhizo) %>% summarize(samples = n()) %>% as.data.frame() %>% mutate(value = 1) %>% distinct() %>% complete(Genotype, Rhizo)
+full_design <- my_data %>% dplyr::select(Genotype, Rhizo) %>% mutate(value = 1) %>% distinct() %>% complete(Genotype, Rhizo) %>%
+  mutate(Rhizo = case_when(Rhizo == "C" ~ "KH35c",
+                           Rhizo == "D" ~ "MAG177",
+                           Rhizo == "E" ~ "KH48e",
+                           Rhizo == "F" ~ "MAG282",
+                           Rhizo == "G" ~ "MAG154",
+                           Rhizo == "H" ~ "MAG533",
+                           Rhizo == "I" ~ "MAG358",
+                           Rhizo == "J" ~ "MAG540",
+                           .default = Rhizo)) 
+full_design_2 <- my_data %>% group_by(Genotype, Rhizo) %>% summarize(samples = n()) %>% as.data.frame() %>% mutate(value = 1) %>% distinct() %>% complete(Genotype, Rhizo) %>%
+  mutate(Rhizo = case_when(Rhizo == "C" ~ "KH35c",
+                           Rhizo == "D" ~ "MAG177",
+                           Rhizo == "E" ~ "KH48e",
+                           Rhizo == "F" ~ "MAG282",
+                           Rhizo == "G" ~ "MAG154",
+                           Rhizo == "H" ~ "MAG533",
+                           Rhizo == "I" ~ "MAG358",
+                           Rhizo == "J" ~ "MAG540",
+                           .default = Rhizo)) 
 full_design$value <- replace(full_design$value, is.na(full_design$value), 0)
 ggplot(full_design) + geom_tile(aes(x = Genotype, y = Rhizo, fill = value))
 tibble <- full_design %>% pivot_wider(names_from = Genotype, values_from = value, values_fill = list(value = 0))
@@ -228,13 +207,14 @@ ggplot(full_design) + geom_tile(aes(x = Genotype, y = Rhizo, fill = value)) +
   scale_x_discrete(limits = Geno_order) + scale_y_discrete(limits = Rhizo_order) + 
   theme(axis.text.x = element_text(angle = 90)) + theme(legend.position = "none")
 
-ggplot(full_design) + geom_tile(aes(x = Genotype, y = Rhizo, fill = value, alpha = value)) +
-  scale_x_discrete(limits = Geno_order) + scale_y_discrete(limits = Rhizo_order) +
+ggplot(full_design) +
+  geom_tile(aes(x = Genotype, y = Rhizo, fill = value, alpha = value)) +
+  scale_x_discrete(limits = Geno_order) +
   theme(axis.text.x = element_text(angle = 90)) +
-  geom_text(data = full_design_2 %>% group_by(Rhizo) %>% summarize(n = sum(value, na.rm = TRUE)),
-            aes(y = Rhizo, label = n), x = 21) +
-  geom_text(data = full_design_2 %>% group_by(Genotype) %>% summarize(n = sum(value, na.rm = TRUE)),
-            aes(x = Genotype, label = n), y = 11) +
+  # geom_text(data = full_design_2 %>% group_by(Rhizo) %>% summarize(n = sum(value, na.rm = TRUE)),
+  #           aes(y = Rhizo, label = n), x = 21) +
+  # geom_text(data = full_design_2 %>% group_by(Genotype) %>% summarize(n = sum(value, na.rm = TRUE)),
+  #           aes(x = Genotype, label = n), y = 11) +
   coord_cartesian(clip = "off") +
   scale_fill_gradient(low = "white", high = "black") +
   scale_alpha_identity() +
@@ -243,7 +223,9 @@ ggplot(full_design) + geom_tile(aes(x = Genotype, y = Rhizo, fill = value, alpha
   theme(axis.line = element_blank(), axis.ticks = element_blank()) +
   theme(axis.text.x = element_text(angle = 90)) +
   geom_vline(xintercept = seq(0.5,20.5,1)) +
-  geom_hline(yintercept = seq(0.5,10.5,1))
+  geom_hline(yintercept = seq(0.5,10.5,1)) +
+  xlab("Host genotype") +
+  ylab("Rhizobia strain")
 
 subcluster_1 <- my_data %>% filter(Rhizo %in% c("C", "D") & 
                                      Genotype %in% c("HM049", "HM138"))
@@ -258,14 +240,85 @@ subcluster_5 <- my_data %>% filter(Rhizo %in% c("J", "USDA1021") &
 manuscript_subcluster <- my_data %>% filter(Rhizo %in% c("WSM1022", "USDA1021") &
                                               Genotype %in% c("HM145"))
 
-colnames(my_data %>% select(is.numeric))
+my_data <- my_data %>%
+  mutate(Rhizo = case_when(Rhizo == "C" ~ "KH35c",
+                           Rhizo == "D" ~ "MAG177",
+                           Rhizo == "E" ~ "KH48e",
+                           Rhizo == "F" ~ "MAG282",
+                           Rhizo == "G" ~ "MAG154",
+                           Rhizo == "H" ~ "MAG533",
+                           Rhizo == "I" ~ "MAG358",
+                           Rhizo == "J" ~ "MAG540",
+                           .default = Rhizo))
+data <- data %>%
+  mutate(Rhizo = case_when(Rhizo == "C" ~ "KH35c",
+                           Rhizo == "D" ~ "MAG177",
+                           Rhizo == "E" ~ "KH48e",
+                           Rhizo == "F" ~ "MAG282",
+                           Rhizo == "G" ~ "MAG154",
+                           Rhizo == "H" ~ "MAG533",
+                           Rhizo == "I" ~ "MAG358",
+                           Rhizo == "J" ~ "MAG540",
+                           .default = Rhizo))
+
+subcluster_1 <- subcluster_1 %>% 
+  mutate(Rhizo = case_when(Rhizo == "C" ~ "KH35c",
+                           Rhizo == "D" ~ "MAG177",
+                           Rhizo == "E" ~ "KH48e",
+                           Rhizo == "F" ~ "MAG282",
+                           Rhizo == "G" ~ "MAG154",
+                           Rhizo == "H" ~ "MAG533",
+                           Rhizo == "I" ~ "MAG358",
+                           Rhizo == "J" ~ "MAG540",
+                           .default = Rhizo))
+subcluster_2 <- subcluster_2 %>% 
+  mutate(Rhizo = case_when(Rhizo == "C" ~ "KH35c",
+                           Rhizo == "D" ~ "MAG177",
+                           Rhizo == "E" ~ "KH48e",
+                           Rhizo == "F" ~ "MAG282",
+                           Rhizo == "G" ~ "MAG154",
+                           Rhizo == "H" ~ "MAG533",
+                           Rhizo == "I" ~ "MAG358",
+                           Rhizo == "J" ~ "MAG540",
+                           .default = Rhizo))
+subcluster_3 <- subcluster_3 %>% 
+  mutate(Rhizo = case_when(Rhizo == "C" ~ "KH35c",
+                           Rhizo == "D" ~ "MAG177",
+                           Rhizo == "E" ~ "KH48e",
+                           Rhizo == "F" ~ "MAG282",
+                           Rhizo == "G" ~ "MAG154",
+                           Rhizo == "H" ~ "MAG533",
+                           Rhizo == "I" ~ "MAG358",
+                           Rhizo == "J" ~ "MAG540",
+                           .default = Rhizo))
+subcluster_4 <- subcluster_4 %>% 
+  mutate(Rhizo = case_when(Rhizo == "C" ~ "KH35c",
+                           Rhizo == "D" ~ "MAG177",
+                           Rhizo == "E" ~ "KH48e",
+                           Rhizo == "F" ~ "MAG282",
+                           Rhizo == "G" ~ "MAG154",
+                           Rhizo == "H" ~ "MAG533",
+                           Rhizo == "I" ~ "MAG358",
+                           Rhizo == "J" ~ "MAG540",
+                           .default = Rhizo))
+subcluster_5 <- subcluster_5 %>% 
+  mutate(Rhizo = case_when(Rhizo == "C" ~ "KH35c",
+                           Rhizo == "D" ~ "MAG177",
+                           Rhizo == "E" ~ "KH48e",
+                           Rhizo == "F" ~ "MAG282",
+                           Rhizo == "G" ~ "MAG154",
+                           Rhizo == "H" ~ "MAG533",
+                           Rhizo == "I" ~ "MAG358",
+                           Rhizo == "J" ~ "MAG540",
+                           .default = Rhizo))
+
+colnames(my_data %>% dplyr::select(is.numeric))
 ### Correlations
 corrplot(cor(
-  my_data %>% select(is.numeric) %>%
-    select(-c("Old...Galls", "Old...Nod.Count", "X.2",
-              "Galls_manuscript", "Really.Old...Galls..pre.stain.", 
-              "Block.Row", "Nods", "Nods.Removed", "Galls_eggless",
-              "EggSacs", "Nodules")) %>% drop_na()
+  my_data %>% dplyr::select(is.numeric) %>%
+    dplyr::select(-c("Block.Row", "Nods.Removed", "Galls_eggless",
+              "EggSacs", "Nodules")) %>% drop_na() %>% 
+    mutate(sym_count = Galls + Total.Nodules)
 ), method="color",
 type="upper", order="hclust", 
 addCoef.col = "black", # Add coefficient of correlation
@@ -277,3 +330,31 @@ diag=FALSE
 
 
 seed <- abs(round(rnorm(1)*1000, 0))
+block_formula <- "+ Block.Position1 + Block.Shelf + Block.RowSplit"
+gall_block_formula <- "+ Block.Position1 + Block.Shelf"
+
+setwd(dir_out)
+png(filename = "roottraitcorrelation.png", 
+    width = 2160, height = 2160, 
+    units = "px", res = 200)
+corrplot(cor(
+  my_data %>% dplyr::select(is.numeric) %>%
+    dplyr::select(c("Total.Nodules", "Galls", "Below.ground.biomass", "Above.ground.biomass")) %>% drop_na() %>%
+    mutate(sym_count = Galls + Total.Nodules) %>%
+    rename(
+       "Nodules"=Total.Nodules,
+       "Symbiotic structure count"=sym_count,
+       "Below Ground Biomass"=Below.ground.biomass,
+       "Above ground biomass"=Above.ground.biomass
+    )
+), method="color",
+type="upper", order="hclust", 
+addCoef.col = "black", # Add coefficient of correlation
+tl.col="black", tl.srt=45, #Text label color and rotation
+sig.level = 0.01, insig = "blank",number.digits = 2, number.cex = 0.6, 
+# hide correlation coefficient on the principal diagonal
+diag=FALSE
+)
+dev.off()
+dev.off()
+
